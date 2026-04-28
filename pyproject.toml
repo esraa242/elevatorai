@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "elevator-ai-adk"
+version = "1.0.0"
+description = "Elevator Cabin AI Designer - Google ADK Multi-Agent System"
+requires-python = ">=3.11"
+dependencies = [
+    "google-adk>=0.1.0",
+    "google-generativeai>=0.8.0",
+    "google-cloud-aiplatform>=1.70.0",
+    "vertexai>=1.70.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic>=2.9.0",
+    "pillow>=11.0.0",
+    "numpy>=2.1.0",
+    "trimesh>=4.5.0",
+    "pygltflib>=1.16.0",
+    "aiohttp>=3.11.0",
+    "python-multipart>=0.0.17",
+    "python-dotenv>=1.0.0",
+    "redis>=5.2.0",
+    "sqlalchemy>=2.0.36",
+    "psycopg2-binary>=2.9.10",
+    "alembic>=1.14.0",
+    "httpx>=0.28.0",
+    "jinja2>=3.1.4",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3.0", "pytest-asyncio>=0.24.0", "black>=24.10.0", "ruff>=0.8.0"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["agents*", "shared*", "workflows*", "services*"]
