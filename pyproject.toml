@@ -10,8 +10,6 @@ requires-python = ">=3.11"
 dependencies = [
     "google-adk>=0.1.0",
     "google-generativeai>=0.8.0",
-    "google-cloud-aiplatform>=1.70.0",
-    "vertexai>=1.70.0",
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",
     "pydantic>=2.9.0",
