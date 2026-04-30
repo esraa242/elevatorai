@@ -7,7 +7,6 @@ import numpy as np
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 from google.adk.agents import Agent
-from google.adk.tools import tool
 import os
 import google.generativeai as genai
 
@@ -137,7 +136,7 @@ class EmbeddingStore:
 
         return cabins
 
-@tool
+
 async def match_cabins(
     vision_analysis: Dict,
     customer_budget: Optional[float] = None,
@@ -298,7 +297,7 @@ def _cabin_to_dict(cabin: CabinDesign) -> Dict:
         }
     }
 
-@tool
+
 async def get_cabin_details(cabin_id: str) -> Dict:
     """Get full details for a specific cabin design"""
     store = EmbeddingStore()

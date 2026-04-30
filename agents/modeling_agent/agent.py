@@ -9,7 +9,6 @@ from typing import Dict, List, Optional
 from io import BytesIO
 from PIL import Image
 from google.adk.agents import Agent
-from google.adk.tools import tool
 import trimesh
 import os
 import google.generativeai as genai
@@ -61,7 +60,7 @@ class ModelingAgentConfig:
         }
     }
 
-@tool
+
 async def analyze_cabin_image(image_bytes: bytes) -> Dict:
     """Analyze cabin design image to extract 3D construction parameters"""
     model = genai.GenerativeModel(ModelingAgentConfig.MODEL_NAME)
@@ -78,7 +77,7 @@ async def analyze_cabin_image(image_bytes: bytes) -> Dict:
     )
     return json.loads(response.text)
 
-@tool
+
 async def generate_3d_model(
     cabin_params: Dict,
     style_params: Optional[Dict] = None,
@@ -155,7 +154,7 @@ async def generate_3d_model(
         }
     }
 
-@tool
+
 async def customize_materials(model_path: str, material_overrides: Dict[str, str]) -> str:
     """Customize materials on existing 3D model"""
     scene = trimesh.load(model_path)

@@ -14,7 +14,6 @@ if "GEMINI_API_KEY" in os.environ:
     genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
 from google.adk.agents import Agent
-from google.adk.tools import tool
 
 class VisionAgentConfig:
     MODEL_NAME = "gemini-1.5-pro-vision-002"
@@ -35,7 +34,7 @@ class VisionAgentConfig:
         "Terrazzo", "Onyx", "Linen", "Velvet", "Suede"
     ]
 
-@tool
+
 async def analyze_interior_image(image_bytes: bytes, image_format: str = "jpeg") -> Dict:
     """
     Analyze villa interior image using Gemini Pro Vision
@@ -145,7 +144,7 @@ Return ONLY a valid JSON object with this exact structure:
             "confidence": 0.5
         }
 
-@tool
+
 async def extract_color_palette(image_bytes: bytes, n_colors: int = 5) -> List[str]:
     """Extract dominant colors using Gemini + PIL validation"""
     from sklearn.cluster import KMeans
@@ -162,7 +161,7 @@ async def extract_color_palette(image_bytes: bytes, n_colors: int = 5) -> List[s
 
     return [f"#{c[0]:02x}{c[1]:02x}{c[2]:02x}" for c in colors]
 
-@tool
+
 async def detect_room_type(image_bytes: bytes) -> str:
     """Detect which room type (living, bedroom, kitchen, etc.) for context"""
     model = genai.GenerativeModel(VisionAgentConfig.MODEL_NAME)

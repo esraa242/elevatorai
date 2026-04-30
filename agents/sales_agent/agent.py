@@ -6,7 +6,6 @@ import os
 from typing import Dict, List, Optional
 from datetime import datetime
 from google.adk.agents import Agent
-from google.adk.tools import tool
 import aiohttp
 
 class SalesAgentConfig:
@@ -123,7 +122,7 @@ class WhatsAppAPI:
             async with session.post(url, json=payload, headers=headers) as resp:
                 return await resp.json()
 
-@tool
+
 async def generate_quote(cabin_design: Dict, customer_details: Dict, customizations: Optional[List[str]] = None) -> Dict:
     """Generate professional quote for elevator cabin"""
     customizations = customizations or []
@@ -136,7 +135,7 @@ async def generate_quote(cabin_design: Dict, customer_details: Dict, customizati
     )
     return quote
 
-@tool
+
 async def send_quote_via_whatsapp(phone_number: str, quote: Dict, preview_image_url: Optional[str] = None) -> Dict:
     """Send quote to customer via WhatsApp"""
     wa = WhatsAppAPI()
@@ -180,7 +179,7 @@ Reply *CUSTOMIZE* to modify design"""
 
     return {"status": "sent", "quote_id": quote["quote_id"], "phone": phone_number}
 
-@tool
+
 async def handle_whatsapp_webhook(payload: Dict) -> Dict:
     """Handle incoming WhatsApp webhook"""
     entry = payload.get("entry", [{}])[0]
