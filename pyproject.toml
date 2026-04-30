@@ -9,8 +9,9 @@ description = "Elevator Cabin AI Designer - Google ADK Multi-Agent System"
 requires-python = ">=3.11"
 dependencies = [
     "google-adk>=1.0.0",
-    "google-generativeai>=0.8.0",
+    "google-genai>=1.72.0",
     "fastapi>=0.104.0",
+
     "uvicorn[standard]>=0.24.0",
     "pydantic>=2.5.0",
     "pillow>=10.0.0",

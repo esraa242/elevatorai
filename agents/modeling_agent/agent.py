@@ -11,10 +11,12 @@ from PIL import Image
 from google.adk.agents import Agent
 import trimesh
 import os
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
-if "GEMINI_API_KEY" in os.environ:
-    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+def get_client():
+    """Initialize the new unified Google GenAI client"""
+    return genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
 class ModelingAgentConfig:
     MODEL_NAME = "gemini-1.5-pro"
@@ -63,17 +65,23 @@ class ModelingAgentConfig:
 
 async def analyze_cabin_image(image_bytes: bytes) -> Dict:
     """Analyze cabin design image to extract 3D construction parameters"""
-    model = genai.GenerativeModel(ModelingAgentConfig.MODEL_NAME)
-    image_part = {"mime_type": "image/jpeg", "data": image_bytes}
+    client = get_client()
 
     prompt = """Analyze this elevator cabin design image and extract 3D modeling parameters.
 
     Return JSON with: cabin_type, shape, dimensions, wall_configuration, ceiling, floor, 
     handrails, control_panel, materials, complexity."""
 
-    response = model.generate_content(
-        [image_part, prompt],
-        generation_config={"temperature": 0.1, "response_mime_type": "application/json"}
+    response = await client.aio.models.generate_content(
+        model=ModelingAgentConfig.MODEL_NAME,
+        contents=[
+            types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
+            prompt
+        ],
+        config=types.GenerateContentConfig(
+            temperature=0.1,
+            response_mime_type="application/json"
+        )
     )
     return json.loads(response.text)
 
@@ -179,7 +187,7 @@ async def customize_materials(model_path: str, material_overrides: Dict[str, str
 modeling_agent_def = Agent(
     name="modeling_engineer",
     description="Converts 2D cabin design images into interactive 3D models",
-    model="gemini-1.5-pro-002",
+    model=ModelingAgentConfig.MODEL_NAME,
     tools=[analyze_cabin_image, generate_3d_model, customize_materials],
     instruction="You are ModelingAgent. Analyze cabin images, extract 3D params, generate GLB models with PBR materials. Optimize for web viewing."
 )

@@ -8,10 +8,12 @@ from io import BytesIO
 from typing import Dict, List, Optional
 from PIL import Image
 import os
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
-if "GEMINI_API_KEY" in os.environ:
-    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+def get_client():
+    """Initialize the new unified Google GenAI client"""
+    return genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
 from google.adk.agents import Agent
 
@@ -37,7 +39,7 @@ class VisionAgentConfig:
 
 async def analyze_interior_image(image_bytes: bytes, image_format: str = "jpeg") -> Dict:
     """
-    Analyze villa interior image using Gemini Pro Vision
+    Analyze villa interior image using Gemini Pro Vision via unified GenAI SDK
 
     Args:
         image_bytes: Raw image bytes
@@ -47,11 +49,7 @@ async def analyze_interior_image(image_bytes: bytes, image_format: str = "jpeg")
         Comprehensive style analysis with colors, materials, mood
     """
     try:
-        # Initialize Gemini Pro Vision
-        model = genai.GenerativeModel(VisionAgentConfig.MODEL_NAME)
-
-        # Create image part
-        image_part = {"mime_type": f"image/{image_format}", "data": image_bytes}
+        client = get_client()
 
         # Structured prompt for consistent JSON output
         prompt = f"""You are an expert interior design analyst specializing in luxury residential spaces.
@@ -113,14 +111,18 @@ Return ONLY a valid JSON object with this exact structure:
     ]
 }}"""
 
-        # Generate analysis
-        response = model.generate_content(
-            [image_part, prompt],
-            generation_config={
-                "temperature": VisionAgentConfig.TEMPERATURE,
-                "max_output_tokens": VisionAgentConfig.MAX_OUTPUT_TOKENS,
-                "response_mime_type": "application/json"
-            }
+        # Generate analysis using async client
+        response = await client.aio.models.generate_content(
+            model=VisionAgentConfig.MODEL_NAME,
+            contents=[
+                types.Part.from_bytes(data=image_bytes, mime_type=f"image/{image_format}"),
+                prompt
+            ],
+            config=types.GenerateContentConfig(
+                temperature=VisionAgentConfig.TEMPERATURE,
+                max_output_tokens=VisionAgentConfig.MAX_OUTPUT_TOKENS,
+                response_mime_type="application/json"
+            )
         )
 
         # Parse JSON response
@@ -136,6 +138,7 @@ Return ONLY a valid JSON object with this exact structure:
         return analysis
 
     except Exception as e:
+        print(f"Vision analysis error: {str(e)}")
         return {
             "error": str(e),
             "primary_style": {"name": "Modern Minimalist", "confidence": 70, "description": "Fallback analysis"},
@@ -146,7 +149,7 @@ Return ONLY a valid JSON object with this exact structure:
 
 
 async def extract_color_palette(image_bytes: bytes, n_colors: int = 5) -> List[str]:
-    """Extract dominant colors using Gemini + PIL validation"""
+    """Extract dominant colors using PIL validation"""
     from sklearn.cluster import KMeans
     import numpy as np
 
@@ -164,12 +167,17 @@ async def extract_color_palette(image_bytes: bytes, n_colors: int = 5) -> List[s
 
 async def detect_room_type(image_bytes: bytes) -> str:
     """Detect which room type (living, bedroom, kitchen, etc.) for context"""
-    model = genai.GenerativeModel(VisionAgentConfig.MODEL_NAME)
-    image_part = {"mime_type": "image/jpeg", "data": image_bytes}
-
+    client = get_client()
+    
     prompt = "What type of room is this? Return ONLY one word: living_room, bedroom, kitchen, bathroom, hallway, dining_room, foyer, or other."
 
-    response = model.generate_content([image_part, prompt])
+    response = await client.aio.models.generate_content(
+        model=VisionAgentConfig.MODEL_NAME,
+        contents=[
+            types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
+            prompt
+        ]
+    )
     return response.text.strip().lower()
 
 # ADK Agent Definition
@@ -178,15 +186,14 @@ vision_agent_def = Agent(
     description="Analyzes interior design images to extract style, colors, materials, and spatial characteristics",
     model=VisionAgentConfig.MODEL_NAME,
     tools=[analyze_interior_image, extract_color_palette, detect_room_type],
-    instruction="""You are VisionAgent, an expert interior design analyst.
+    instruction=\"\"\"You are VisionAgent, an expert interior design analyst.
 
 Your role is to analyze uploaded villa interior photos and extract:
 1. Design styles (with confidence scores)
-2. Color palettes (dominant + accent)
-3. Materials and finishes
-4. Mood and atmosphere
+2. Materials and finishes
+3. Color palettes (hex codes)
+4. Mood and atmospheric qualities
 5. Spatial characteristics
 
-Always return structured JSON data. Be precise with confidence scores.
-If image quality is poor, note it in your analysis."""
+Be precise and structured in your analysis. Your output is used to match technical elevator cabin specifications.\"\"\"
 )
