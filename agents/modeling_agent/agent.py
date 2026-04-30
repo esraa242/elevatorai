@@ -17,7 +17,7 @@ if "GEMINI_API_KEY" in os.environ:
     genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
 class ModelingAgentConfig:
-    MODEL_NAME = "gemini-1.5-pro-vision-002"
+    MODEL_NAME = "gemini-1.5-pro"
     OUTPUT_FORMATS = ["glb", "gltf", "usdz", "obj"]
     DEFAULT_DIMENSIONS = {"width": 1.4, "depth": 1.6, "height": 2.5}
 

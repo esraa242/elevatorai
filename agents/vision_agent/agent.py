@@ -16,7 +16,7 @@ if "GEMINI_API_KEY" in os.environ:
 from google.adk.agents import Agent
 
 class VisionAgentConfig:
-    MODEL_NAME = "gemini-1.5-pro-vision-002"
+    MODEL_NAME = "gemini-1.5-pro"
     TEMPERATURE = 0.2
     MAX_OUTPUT_TOKENS = 2048
 

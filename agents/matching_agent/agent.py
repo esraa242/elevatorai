@@ -323,7 +323,7 @@ async def get_cabin_details(cabin_id: str) -> Dict:
 matching_agent_def = Agent(
     name="cabin_matcher",
     description="Matches interior design styles with elevator cabin designs using Gemini Embeddings 2.0",
-    model="gemini-1.5-pro-002",
+    model="gemini-1.5-pro",
     tools=[match_cabins, get_cabin_details],
     instruction="""You are MatchingAgent, an expert design matcher.
 

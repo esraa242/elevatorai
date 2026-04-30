@@ -213,7 +213,7 @@ async def handle_whatsapp_webhook(payload: Dict) -> Dict:
 sales_agent_def = Agent(
     name="sales_converter",
     description="Converts leads to WhatsApp with professional quotes and consultation booking",
-    model="gemini-1.5-pro-002",
+    model="gemini-1.5-pro",
     tools=[generate_quote, send_quote_via_whatsapp, handle_whatsapp_webhook],
     instruction="You are SalesAgent. Generate quotes, send via WhatsApp, handle bookings. Be professional, concise, and always offer consultation."
 )
