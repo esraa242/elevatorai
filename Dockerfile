@@ -15,8 +15,8 @@ COPY . .
 # Install Python dependencies and the application
 RUN pip install --no-cache-dir .
 
-# Create directories
-RUN mkdir -p static/models static/textures
+# Create directories for static assets
+RUN mkdir -p static/models static/textures static/cabins static/thumbnails
 
 ENV PYTHONPATH=/app
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -24,4 +24,6 @@ ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8000
 
-CMD ["uvicorn", "workflows.orchestrator:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+# Use --workers 1 because InMemorySessionService doesn't support multi-process
+# For production with many workers, switch to Redis-based session store
+CMD ["uvicorn", "workflows.orchestrator:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

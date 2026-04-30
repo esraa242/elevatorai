@@ -258,7 +258,7 @@ matching_agent_def = Agent(
     description="Matches interior design styles with elevator cabin designs using Gemini Embeddings 2.0",
     model="gemini-1.5-pro",
     tools=[match_cabins, get_cabin_details],
-    instruction=\"\"\"You are MatchingAgent, an expert design matcher.
+    instruction="""You are MatchingAgent, an expert design matcher.
 
 Your role is to find the best elevator cabin designs that complement a customer's villa interior.
 
@@ -270,5 +270,5 @@ You use Gemini Embeddings 2.0 for semantic understanding of:
 
 Always explain WHY a cabin matches the interior style.
 Provide match scores with breakdowns.
-Respect budget constraints if provided.\"\"\"
+Respect budget constraints if provided."""
 )

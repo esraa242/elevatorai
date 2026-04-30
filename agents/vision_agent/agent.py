@@ -186,7 +186,7 @@ vision_agent_def = Agent(
     description="Analyzes interior design images to extract style, colors, materials, and spatial characteristics",
     model=VisionAgentConfig.MODEL_NAME,
     tools=[analyze_interior_image, extract_color_palette, detect_room_type],
-    instruction=\"\"\"You are VisionAgent, an expert interior design analyst.
+    instruction="""You are VisionAgent, an expert interior design analyst.
 
 Your role is to analyze uploaded villa interior photos and extract:
 1. Design styles (with confidence scores)
@@ -195,5 +195,5 @@ Your role is to analyze uploaded villa interior photos and extract:
 4. Mood and atmospheric qualities
 5. Spatial characteristics
 
-Be precise and structured in your analysis. Your output is used to match technical elevator cabin specifications.\"\"\"
+Be precise and structured in your analysis. Your output is used to match technical elevator cabin specifications."""
 )
