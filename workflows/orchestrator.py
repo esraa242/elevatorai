@@ -2,11 +2,17 @@
 Workflow Orchestrator: Coordinates multi-agent pipeline
 VisionAgent -> MatchingAgent -> ModelingAgent -> SalesAgent
 """
+import os
 import asyncio
 import json
 from typing import Dict, List, Optional
 from dataclasses import dataclass, asdict
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.adk.tools import tool
