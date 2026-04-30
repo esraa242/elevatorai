@@ -8,9 +8,11 @@ from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 from google.adk.agents import Agent
 from google.adk.tools import tool
-import vertexai
-from vertexai.preview.generative_models import GenerativeModel
-from vertexai.preview.language_models import TextEmbeddingModel
+import os
+import google.generativeai as genai
+
+if "GEMINI_API_KEY" in os.environ:
+    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 import redis.asyncio as redis
 import asyncpg
 
@@ -46,17 +48,19 @@ class MatchingAgentConfig:
 class EmbeddingStore:
     """Redis-based vector store for cabin embeddings using Gemini 2.0"""
 
-    def __init__(self, redis_url: str = "redis://localhost:6379/0"):
+    def __init__(self, redis_url: str = None):
+        if redis_url is None:
+            redis_url = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
         self.redis = redis.from_url(redis_url)
-        self.embedding_model = TextEmbeddingModel.from_pretrained(MatchingAgentConfig.EMBEDDING_MODEL)
 
     async def generate_embedding(self, content: str, task_type: str = "RETRIEVAL_DOCUMENT") -> List[float]:
         """Generate Gemini 2.0 embedding for text or image description"""
-        embeddings = self.embedding_model.get_embeddings(
-            [content],
+        result = genai.embed_content(
+            model=f"models/{MatchingAgentConfig.EMBEDDING_MODEL}",
+            content=content,
             task_type=task_type
         )
-        return embeddings[0].values
+        return result['embedding']
 
     async def generate_image_embedding(self, image_description: str) -> List[float]:
         """Generate embedding from image description (Gemini Vision output)"""

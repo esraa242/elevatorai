@@ -11,8 +11,11 @@ from PIL import Image
 from google.adk.agents import Agent
 from google.adk.tools import tool
 import trimesh
-import vertexai
-from vertexai.generative_models import GenerativeModel, Part
+import os
+import google.generativeai as genai
+
+if "GEMINI_API_KEY" in os.environ:
+    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
 class ModelingAgentConfig:
     MODEL_NAME = "gemini-1.5-pro-vision-002"
@@ -61,8 +64,8 @@ class ModelingAgentConfig:
 @tool
 async def analyze_cabin_image(image_bytes: bytes) -> Dict:
     """Analyze cabin design image to extract 3D construction parameters"""
-    model = GenerativeModel(ModelingAgentConfig.MODEL_NAME)
-    image_part = Part.from_data(image_bytes, mime_type="image/jpeg")
+    model = genai.GenerativeModel(ModelingAgentConfig.MODEL_NAME)
+    image_part = {"mime_type": "image/jpeg", "data": image_bytes}
 
     prompt = """Analyze this elevator cabin design image and extract 3D modeling parameters.
 

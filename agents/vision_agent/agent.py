@@ -7,8 +7,12 @@ import json
 from io import BytesIO
 from typing import Dict, List, Optional
 from PIL import Image
-import vertexai
-from vertexai.generative_models import GenerativeModel, Part, Image as VertexImage
+import os
+import google.generativeai as genai
+
+if "GEMINI_API_KEY" in os.environ:
+    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+
 from google.adk.agents import Agent
 from google.adk.tools import tool
 
@@ -45,10 +49,10 @@ async def analyze_interior_image(image_bytes: bytes, image_format: str = "jpeg")
     """
     try:
         # Initialize Gemini Pro Vision
-        model = GenerativeModel(VisionAgentConfig.MODEL_NAME)
+        model = genai.GenerativeModel(VisionAgentConfig.MODEL_NAME)
 
         # Create image part
-        image_part = Part.from_data(image_bytes, mime_type=f"image/{image_format}")
+        image_part = {"mime_type": f"image/{image_format}", "data": image_bytes}
 
         # Structured prompt for consistent JSON output
         prompt = f"""You are an expert interior design analyst specializing in luxury residential spaces.
@@ -161,8 +165,8 @@ async def extract_color_palette(image_bytes: bytes, n_colors: int = 5) -> List[s
 @tool
 async def detect_room_type(image_bytes: bytes) -> str:
     """Detect which room type (living, bedroom, kitchen, etc.) for context"""
-    model = GenerativeModel(VisionAgentConfig.MODEL_NAME)
-    image_part = Part.from_data(image_bytes, mime_type="image/jpeg")
+    model = genai.GenerativeModel(VisionAgentConfig.MODEL_NAME)
+    image_part = {"mime_type": "image/jpeg", "data": image_bytes}
 
     prompt = "What type of room is this? Return ONLY one word: living_room, bedroom, kitchen, bathroom, hallway, dining_room, foyer, or other."
 
